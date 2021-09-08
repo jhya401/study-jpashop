@@ -1,0 +1,125 @@
+Configuration:
+  name: Log4j2 Configuration
+  status: warn
+  monitorInterval: 300  # 300초마다 탐색되며 변경사항이 있을 경우 재시작 없이 변경사항을 적용한다.
+
+  properties:
+    property:
+      - name: log_file_name
+        value: log-jpashop
+      - name: file_path
+        value: logs
+      - name: console_pattern # %d{ISO8601}
+        value: "%highlight{%-5level}%style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{blue} [%style{%t}{bright,blue}] %style{%c{1.}}{bright,yellow} %C : %msg%n%throwable"
+      - name: file_pattern
+        value: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t][%F] %c{1} - %msg%n"
+
+  Appenders:
+    Console:
+      name: Console_Appender
+      target: SYSTEM_OUT
+      PatternLayout:
+        Pattern: ${console_pattern}
+    RollingFile:
+      name: Rolling_File_Appender
+      fileName: "${file_path}/rollingfile.log"
+      filePattern: "${file_path}/archive/rollingfile.log-%d{yyyy-MM-dd}"
+      PatternLayout:
+        pattern: ${file_pattern}
+      Policies:
+        # 시간별 로그 파일 생성
+        TimeBasedTriggeringPolicy:
+          modulate: true
+          interval: 1
+        # 롤링 파일 31개 까지 생성. 넘으면 오래된 것부터 삭제
+        DefaultRolloverStrategy:
+          Delete:
+            basePath: "${file_path}/archive"
+            maxDepth: "1"
+            IfAccumulatedFileCount:
+              exceeds: 31
+
+  Loggers:
+    Root:
+      level: INFO
+      AppenderRef:
+        - ref: Console_Appender
+        - ref: Rolling_File_Appender
+
+    # 패키지별로 로그 설정
+    Logger:
+      - # 스프링 프레임워크에서 찍는건 level을 warn로 설정
+        name: org.springframework
+        level: WARN
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+          - ref: Rolling_File_Appender
+      - # rollingfile, file, console별로 level 지정 가능.
+        name: jpabook.jpashop
+        level: DEBUG # 팩토리 내 공통 최대 로그범위
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+            level: DEBUG # 팩토리 내 공통 최대 로그범위를 넘지는 못한다.
+          - ref: Rolling_File_Appender
+            level: INFO # 팩토리 내 공통 최대 로그범위를 넘지는 못한다.
+
+      # log4jdbc logger 설정
+      - name: jdbc
+        level: FATAL
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+          - ref: Rolling_File_Appender
+      - name: jdbc.connection # connection open close 로깅 여부
+        level: WARN
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+          - ref: Rolling_File_Appender
+      - name: jdbc.audit # ResultSet외 모든 JDBC 호출 정보를 로깅할지 여부
+        level: FATAL
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+          - ref: Rolling_File_Appender
+      - name: jdbc.resultset # ResultSet 포함 모든 JDBC 호출 정보를 로깅
+        level: FATAL
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+          - ref: Rolling_File_Appender
+      #- name: log4jdbc.log4j2
+      #  level: FATAL
+      #  additivity: false
+      #  AppenderRef:
+      #    - ref: Console_Appender
+      #    - ref: Rolling_File_Appender
+      - # SQL문만 로깅할지 여부
+        name: jdbc.sqlonly
+        level: FATAL
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+            level: DEBUG
+          - ref: Rolling_File_Appender
+            level: INFO
+      - # 쿼리문 수행에 걸린 시간
+        name: jdbc.sqltiming
+        level: DEBUG
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+            level: DEBUG
+          - ref: Rolling_File_Appender
+            level: INFO
+      - # SQL 결과 조회된 데이터의 table을 로그로 남긴다.
+        name: jdbc.resultsettable
+        level: DEBUG
+        additivity: false
+        AppenderRef:
+          - ref: Console_Appender
+            level: DEBUG
+          - ref: Rolling_File_Appender
+            level: INFO

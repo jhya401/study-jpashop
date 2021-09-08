@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="http://ch.qos.logback/xml/ns/logback"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback http://ch.qos.logback/xml/ns/logback/logback.xsd">
+
+    <property name="LOG_LEVEL"			value="DEBUG"/>
+    <property name="LOG_PREFIX"			value="ADMIN-L"/>
+    <property name="LOG_PATH"			value="./logs"/>
+    <property name="LOG_FILE_PREFIX"	value="admin_l"/>
+
+    <!-- 1. Appender 설정 -->
+
+    <!-- console로 log 남기기 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!-- [${LOG_PREFIX} %d{yy-MM-dd HH:mm:ss}] %-5p %c{1} - [ID=%X{__login_id} ,IP=%X{__login_ip}] %m%n -->
+            <pattern>
+                [${LOG_PREFIX} %d{yy-MM-dd HH:mm:ss}][%thread] %-5p %c{1} - %m%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- file로 log 남기기 -->
+    <appender name="file"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE_PREFIX}_service.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/serviceLog/${LOG_FILE_PREFIX}_service-%d{yyyyMMdd}-%i.log</fileNamePattern>
+            <maxFileSize>200MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                [${LOG_PREFIX} %d{yy-MM-dd HH:mm:ss}] %-5p %c{1} - %m%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- file로 log 남기기 - Warn -->
+    <appender name="fileForWarn"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>warn</level>
+        </filter>
+
+        <file>${LOG_PATH}/${LOG_FILE_PREFIX}_warn.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/warnLog/${LOG_FILE_PREFIX}_warn-%d{yyyyMMdd}-%i.log</fileNamePattern>
+            <maxFileSize>200MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                [${LOG_PREFIX} %d{yy-MM-dd HH:mm:ss}] %-5p %c{1} - %m%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- file로 log 남기기 - in-out -->
+    <appender name="fileForInout"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>info</level>
+        </filter>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+                <marker>INOUT</marker>
+            </evaluator>
+            <onMismatch>DENY</onMismatch>
+            <onMatch>NEUTRAL</onMatch>
+        </filter>
+
+        <file>${LOG_PATH}/${LOG_FILE_PREFIX}_inout.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/inoutLog/${LOG_FILE_PREFIX}_inout-%d{yyyyMMdd}-%i.log</fileNamePattern>
+            <maxFileSize>200MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                [${LOG_PREFIX} %d{yy-MM-dd HH:mm:ss}] %-5p %c{1} - %m%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- 2. 로거 설정 -->
+
+    <!-- Application Loggers -->
+
+    <!-- 3rdparty Loggers -->
+    <logger name="com.github.miemiedev"	level="OFF"/>
+
+    <logger name="jdbc"					level="DEBUG"/>
+    <logger name="jdbc.sqlonly"			level="OFF" />
+    <logger name="jdbc.sqltiming"		level="DEBUG" />
+    <logger name="jdbc.audit"			level="OFF" />
+    <logger name="jdbc.resultset"		level="OFF" />
+    <logger name="jdbc.resultsettable"	level="DEBUG" />
+    <logger name="jdbc.connection"		level="DEBUG" />
+    <logger name="kr.arcode.web.filter" level="OFF" />
+
+
+    <!-- Root Logger -->
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="console" />
+        <appender-ref ref="file" />
+        <appender-ref ref="fileForWarn" />
+        <appender-ref ref="fileForInout" />
+    </root>
+
+</configuration>

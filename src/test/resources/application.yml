@@ -1,0 +1,12 @@
+spring:
+  # 스프링부트로 실행하면 자동으로 메모리 모드로 실행한다. => 하지만, 로그를 보기위해서 database설정은 해줬다.
+  profiles:
+    active: local
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:h2:mem:test;DB_CLOSE_ON_EXIT=FALSE # 테스트용 인메모리 h2 데이터베이스
+    username: sa
+    password:
+
+logging:
+  config: classpath:./log4j2/log4j2-local.yml

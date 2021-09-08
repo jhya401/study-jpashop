@@ -1,0 +1,11 @@
+# log4jdbc.log4j2.yml
+log4jdbc:
+  # log4jdbc spy의 로그 이벤트를 slf4j를 통해 처리한다.
+  spylogdelegator.name: net.sf.log4jdbc.log.slf4j.Slf4jSpyLogDelegator
+  # sql문을 몇줄까지 출력할지. 0=무제한 출력
+  dump.sql.maxlinelength: 0
+
+  # log4jdbc의 드라이브 클래스 설정
+  #drivers: com.mysql.cj.jdbc.Driver
+  drivers: org.h2.Driver
+  auto.load.popular.drivers: false
